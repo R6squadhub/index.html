@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>R6 Squad Hub</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+:root{--bg:#0a0c10;--panel:#111520;--card:#161b27;--border:#1e2535;--accent:#f5a623;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--purple:#a855f7;--text:#e2e8f0;--muted:#64748b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--panel);border-bottom:2px solid var(--accent);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;flex-shrink:0}
+.logo{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;color:var(--accent);display:flex;align-items:center;gap:10px}
+.logo span{color:#fff}
+.profile-pill{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;transition:border-color .2s}
+.profile-pill:hover{border-color:var(--accent)}
+.hdr-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.main{display:grid;grid-template-columns:255px 1fr 290px;flex:1;overflow:hidden;height:calc(100vh - 60px)}
+.sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.ssec{padding:13px 15px}
+.stitle{font-family:'Rajdhani',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:9px}
+.frow{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;cursor:pointer;transition:background .15s;margin-bottom:3px}
+.frow:hover{background:var(--card)}
+.fav-wrap{position:relative;flex-shrink:0}
+.fav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.sdot{width:9px;height:9px;border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0}
+.dot-online{background:var(--green)}.dot-ingame{background:var(--blue)}.dot-offline{background:var(--muted)}.dot-loading{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fi{flex:1;min-width:0}
+.fn{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fs{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fs.ig{color:var(--blue)}
+.center{display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--border);padding:0 18px}
+.tab{padding:13px 15px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover:not(.active){color:var(--text)}
+.tc{flex:1;overflow-y:auto;padding:18px;display:none}
+.tc.active{display:block}
+#chat-tab{display:none;flex-direction:column;height:100%;padding:0}
+#chat-tab.active{display:flex}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px}
+.slbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.sval{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;margin-top:4px}
+.green{color:var(--green)}.blue{color:var(--blue)}.orange{color:var(--accent)}.purple{color:var(--purple)}
+.shdr{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.shdr::after{content:'';flex:1;height:1px;background:var(--border);margin-left:8px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:11px;margin-bottom:20px}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;transition:border-color .2s,transform .15s;cursor:pointer;position:relative;overflow:hidden}
+.pcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+.pcard-top{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+.pav-wrap{position:relative;flex-shrink:0}
+.pav{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.pname{font-weight:600;font-size:13px}
+.pgame{font-size:10px;color:var(--muted);margin-top:2px}
+.pgame.ig{color:var(--blue)}
+.rank-box{display:flex;align-items:center;gap:7px;background:var(--panel);border-radius:7px;padding:7px 9px}
+.rank-ico{font-size:18px}
+.rank-nm{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px}
+.rank-mmr{font-size:10px;color:var(--muted)}
+.mmr-bar{height:3px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:7px}
+.mmr-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--purple))}
+.plt-tag{position:absolute;top:9px;right:9px;font-size:13px;opacity:.8}
+.live-badge{position:absolute;top:9px;right:28px;font-size:8px;background:#16a34a22;color:var(--green);border:1px solid #16a34a55;padding:1px 4px;border-radius:3px;font-weight:700}
+.lv-info{font-size:10px;color:var(--muted);margin-top:5px;text-align:right}
+.lbtable{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.lbtable table{width:100%;border-collapse:collapse}
+.lbtable th{background:var(--panel);padding:10px 13px;text-align:left;font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)}
+.lbtable td{padding:10px 13px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle}
+.lbtable tr:last-child td{border-bottom:none}
+.lbtable tr:hover td{background:rgba(255,255,255,.02)}
+.rb{font-size:10px;padding:2px 5px;border-radius:4px;font-weight:600;display:inline-flex;align-items:center;gap:2px}
+.rCopper{background:rgba(180,100,40,.2);color:#cd7f32;border:1px solid #cd7f3255}
+.rBronze{background:rgba(200,120,60,.2);color:#d4845a;border:1px solid #d4845a55}
+.rSilver{background:rgba(180,180,180,.15);color:#c0c0c0;border:1px solid #c0c0c055}
+.rGold{background:rgba(255,200,0,.15);color:#ffd700;border:1px solid #ffd70055}
+.rPlatinum{background:rgba(120,200,255,.15);color:#72d5ff;border:1px solid #72d5ff55}
+.rEmerald{background:rgba(0,220,130,.15);color:#00dc82;border:1px solid #00dc8255}
+.rDiamond{background:rgba(180,100,255,.15);color:#b44cff;border:1px solid #b44cff55}
+.rChampion{background:rgba(255,165,0,.2);color:#ffa500;border:1px solid #ffa50055}
+.rUnranked{background:rgba(100,116,139,.15);color:#64748b;border:1px solid #64748b55}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:11px}
+.cmsg{display:flex;gap:8px;align-items:flex-start}
+.cmsg.me{flex-direction:row-reverse}
+.mav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex-shrink:0}
+.mbody{max-width:72%}
+.mmeta{font-size:10px;color:var(--muted);margin-bottom:3px;display:flex;gap:5px;align-items:center}
+.cmsg.me .mmeta{flex-direction:row-reverse}
+.mbubble{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:8px 12px;font-size:13px;line-height:1.5}
+.cmsg.me .mbubble{background:#1a2340;border-color:var(--blue)}
+.chat-bar{padding:11px 16px;background:var(--panel);border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-in{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.chat-in:focus{border-color:var(--accent)}
+.sbtn{background:var(--accent);color:#000;border:none;border-radius:8px;padding:9px 15px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px}
+.sbtn:hover{opacity:.85}
+.rp{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:15px}
+.rp-sec{margin-bottom:18px}
+.rpbtn{width:100%;margin-bottom:7px;border-radius:8px;padding:9px;background:var(--accent);color:#000;border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:5px}
+.rpbtn:hover{opacity:.85}
+.rpbtn.sec{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.rpbtn.sec:hover{border-color:var(--accent)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;width:430px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal h2{font-family:'Rajdhani',sans-serif;font-size:20px;margin-bottom:16px;color:var(--accent)}
+.fg{margin-bottom:12px}
+.fl{font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:5px;display:block}
+.fi2{width:100%;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.fi2:focus{border-color:var(--accent)}
+select.fi2 option{background:var(--panel)}
+.fi2[readonly]{background:#0d1117;cursor:default}
+.ma{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.bcancl{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:7px;cursor:pointer;font-size:13px}
+.bsave{background:var(--accent);border:none;color:#000;padding:8px 17px;border-radius:7px;cursor:pointer;font-weight:700;font-size:13px;font-family:'Rajdhani',sans-serif;letter-spacing:1px}
+.plt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:5px}
+.pb{background:var(--card);border:2px solid var(--border);border-radius:9px;padding:13px 7px;cursor:pointer;text-align:center;transition:border-color .2s,background .2s}
+.pb:hover,.pb.sel{border-color:var(--accent);background:#1a1f2e}
+.pb .pi2{font-size:24px;margin-bottom:4px}
+.pb .pn{font-size:11px;font-weight:600;letter-spacing:.5px}
+.lnk-status{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:7px;font-size:12px;margin-top:8px}
+.lnk-status.suc{background:#16a34a22;border:1px solid #16a34a55;color:var(--green)}
+.lnk-status.err{background:#7f1d1d22;border:1px solid var(--red);color:var(--red)}
+.lnk-status.ldr{background:#1e293b;border:1px solid var(--border);color:var(--muted)}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.note{background:#1e2535;border:1px solid #334155;border-radius:7px;padding:9px 12px;font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6}
+.note b{color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+.rref-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid var(--accent);color:var(--text);padding:9px 18px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:900px){.main{grid-template-columns:1fr}.sidebar,.rp{display:none}.stats-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⬡ R6 <span>SQUAD HUB</span></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="profile-pill" onclick="openMyProfile()">
+      <div class="hdr-av" style="background:#1e3a5f;color:#72d5ff" id="hdr-av">ME</div>
+      <span id="hdr-plt" style="font-size:15px"></span>
+      <span style="font-size:13px;font-weight:500" id="hdr-nm">Set Up Profile</span>
+      <span id="hdr-linked" style="display:none;font-size:9px;background:#16a34a22;color:var(--green);border:1px solid #16a34a55;padding:1px 5px;border-radius:3px;font-weight:700">LIVE</span>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="ssec">
+      <div class="stitle">🟢 Online — <span id="oc">0</span></div>
+      <div id="sb-online"></div>
+    </div>
+    <div class="ssec">
+      <div class="stitle">⚫ Offline</div>
+      <div id="sb-offline"></div>
+    </div>
+  </div>
+
+  <div class="center">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</div>
+      <div class="tab" onclick="switchTab('ranks')">🏆 Rankings</div>
+      <div class="tab" onclick="switchTab('chat')">💬 Chat</div>
+    </div>
+
+    <div class="tc active" id="dashboard-tab">
+      <div class="stats-row">
+        <div class="scard"><div class="slbl">Squad Size</div><div class="sval orange" id="st-total">0</div></div>
+        <div class="scard"><div class="slbl">Online</div><div class="sval green" id="st-online">0</div></div>
+        <div class="scard"><div class="slbl">In R6</div><div class="sval blue" id="st-r6">0</div></div>
+        <div class="scard"><div class="slbl">Avg MMR</div><div class="sval purple" id="st-mmr">—</div></div>
+      </div>
+      <div class="shdr">SQUAD OVERVIEW</div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+
+    <div class="tc" id="ranks-tab">
+      <div class="shdr">SQUAD LEADERBOARD</div>
+      <div class="lbtable">
+        <table>
+          <thead><tr><th>#</th><th>Player</th><th>Platform</th><th>Rank</th><th>MMR</th><th>K/D</th><th>Win%</th><th>Level</th></tr></thead>
+          <tbody id="lb-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tc" id="chat-tab">
+      <div class="chat-msgs" id="chat-msgs"></div>
+      <div class="chat-bar">
+        <input class="chat-in" id="chat-in" placeholder="Message your squad... (Enter to send)" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="sbtn" onclick="sendMsg()">SEND</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="rp">
+    <div class="rp-sec">
+      <div class="stitle">ACTIONS</div>
+      <button class="rpbtn" onclick="openMyProfile()">✏️ MY PROFILE &amp; ACCOUNT</button>
+      <button class="rpbtn sec" onclick="openAddFriend()">➕ ADD SQUAD MEMBER</button>
+      <button class="rpbtn sec" onclick="refreshAll()">🔄 REFRESH LIVE STATS</button>
+    </div>
+    <div class="rp-sec">
+      <div class="stitle">R6 RANK TIERS</div>
+      <div id="rank-ref"></div>
+    </div>
+    <div class="rp-sec">
+      <div class="stitle">SUPPORTED PLATFORMS</div>
+      <div style="font-size:12px;line-height:2;color:var(--muted)">
+        🖥️ <b style="color:var(--text)">PC</b> — Ubisoft Connect<br>
+        🎮 <b style="color:var(--text)">PlayStation</b> — PSN ID<br>
+        🟩 <b style="color:var(--text)">Xbox</b> — Gamertag<br>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MY PROFILE MODAL -->
+<div class="overlay" id="modal-me">
+  <div class="modal">
+    <h2>⚙️ MY PROFILE</h2>
+    <div class="fg">
+      <label class="fl">Display Name</label>
+      <input class="fi2" id="m-name" placeholder="Your display name"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Your Platform</label>
+      <div class="plt-grid">
+        <div class="pb" id="pb-pc" onclick="selPlt('uplay','pb')">
+          <div class="pi2">🖥️</div><div class="pn" style="color:#f5a623">PC</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">Ubisoft Connect</div>
+        </div>
+        <div class="pb" id="pb-psn" onclick="selPlt('psn','pb')">
+          <div class="pi2">🎮</div><div class="pn" style="color:#0070d1">PlayStation</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">PSN ID</div>
+        </div>
+        <div class="pb" id="pb-xbl" onclick="selPlt('xbl','pb')">
+          <div class="pi2">🟩</div><div class="pn" style="color:#107c10">Xbox</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">Gamertag</div>
+        </div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Your Username on Platform</label>
+      <div style="display:flex;gap:7px">
+        <input class="fi2" id="m-uname" placeholder="Exact username / gamertag" style="flex:1" onkeydown="if(event.key==='Enter')lookupMe()"/>
+        <button class="bsave" onclick="lookupMe()" style="white-space:nowrap">🔍 LOOK UP</button>
+      </div>
+      <div id="m-lnk-status"></div>
+    </div>
+    <div id="m-stats-sec" style="display:none">
+      <div class="note" id="m-note"></div>
+      <div class="grid2">
+        <div class="fg" style="margin:0"><label class="fl">Rank</label><input class="fi2" id="m-rank" readonly/></div>
+        <div class="fg" style="margin:0"><label class="fl">MMR</label><input class="fi2" id="m-mmr" readonly/></div>
+        <div class="fg" style="margin:0"><label class="fl">K/D</label><input class="fi2" id="m-kd" readonly/></div>
+        <div class="fg" style="margin:0"><label class="fl">Win %</label><input class="fi2" id="m-win" readonly/></div>
+        <div class="fg" style="margin:0"><label class="fl">Level</label><input class="fi2" id="m-level" readonly/></div>
+        <div class="fg" style="margin:0"><label class="fl">Matches</label><input class="fi2" id="m-matches" readonly/></div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Current Game (shown to squad)</label>
+      <select class="fi2" id="m-game">
+        <option value="">Not Playing</option>
+        <option value="Rainbow Six Siege">Rainbow Six Siege</option>
+        <option value="Valorant">Valorant</option>
+        <option value="Apex Legends">Apex Legends</option>
+        <option value="Call of Duty">Call of Duty</option>
+        <option value="Fortnite">Fortnite</option>
+        <option value="CS2">CS2</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="ma">
+      <button class="bcancl" onclick="closeModals()">Cancel</button>
+      <button class="bsave" onclick="saveMe()">💾 SAVE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FRIEND MODAL -->
+<div class="overlay" id="modal-add">
+  <div class="modal">
+    <h2>➕ ADD SQUAD MEMBER</h2>
+    <div class="fg">
+      <label class="fl">Their Platform</label>
+      <div class="plt-grid">
+        <div class="pb" id="apb-pc" onclick="selPlt('uplay','apb')">
+          <div class="pi2">🖥️</div><div class="pn" style="color:#f5a623">PC</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">Ubisoft Connect</div>
+        </div>
+        <div class="pb" id="apb-psn" onclick="selPlt('psn','apb')">
+          <div class="pi2">🎮</div><div class="pn" style="color:#0070d1">PlayStation</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">PSN ID</div>
+        </div>
+        <div class="pb" id="apb-xbl" onclick="selPlt('xbl','apb')">
+          <div class="pi2">🟩</div><div class="pn" style="color:#107c10">Xbox</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">Gamertag</div>
+        </div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Their Username</label>
+      <div style="display:flex;gap:7px">
+        <input class="fi2" id="a-uname" placeholder="Their exact username / gamertag" style="flex:1" onkeydown="if(event.key==='Enter')lookupFriend()"/>
+        <button class="bsave" onclick="lookupFriend()" style="white-space:nowrap">🔍 LOOK UP</button>
+      </div>
+      <div id="a-lnk-status"></div>
+    </div>
+    <div id="a-stats-sec" style="display:none">
+      <div class="note" id="a-note"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">Display Name (leave blank to use their username)</label>
+      <input class="fi2" id="a-name" placeholder="Override nickname"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Current Game</label>
+      <select class="fi2" id="a-game">
+        <option value="">Not Playing</option>
+        <option value="Rainbow Six Siege">Rainbow Six Siege</option>
+        <option value="Valorant">Valorant</option>
+        <option value="Apex Legends">Apex Legends</option>
+        <option value="Call of Duty">Call of Duty</option>
+        <option value="Fortnite">Fortnite</option>
+        <option value="CS2">CS2</option>
+      </select>
+    </div>
+    <div class="ma">
+      <button class="bcancl" onclick="closeModals()">Cancel</button>
+      <button class="bsave" onclick="saveAddFriend()">➕ ADD TO SQUAD</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── RANK DATA ──────────────────────────────────────────────────────────────────
+const RANKS=[
+  {n:'Unranked',e:'❓',c:'rUnranked',mmr:0},
+  {n:'Copper III',e:'🟤',c:'rCopper',mmr:0},{n:'Copper II',e:'🟤',c:'rCopper',mmr:400},{n:'Copper I',e:'🟤',c:'rCopper',mmr:800},
+  {n:'Bronze III',e:'🟫',c:'rBronze',mmr:1200},{n:'Bronze II',e:'🟫',c:'rBronze',mmr:1400},{n:'Bronze I',e:'🟫',c:'rBronze',mmr:1600},
+  {n:'Silver III',e:'⚪',c:'rSilver',mmr:1800},{n:'Silver II',e:'⚪',c:'rSilver',mmr:2000},{n:'Silver I',e:'⚪',c:'rSilver',mmr:2200},
+  {n:'Gold III',e:'🟡',c:'rGold',mmr:2400},{n:'Gold II',e:'🟡',c:'rGold',mmr:2600},{n:'Gold I',e:'🟡',c:'rGold',mmr:2800},
+  {n:'Platinum III',e:'🔵',c:'rPlatinum',mmr:3000},{n:'Platinum II',e:'🔵',c:'rPlatinum',mmr:3200},{n:'Platinum I',e:'🔵',c:'rPlatinum',mmr:3400},
+  {n:'Emerald III',e:'💚',c:'rEmerald',mmr:3600},{n:'Emerald II',e:'💚',c:'rEmerald',mmr:3800},{n:'Emerald I',e:'💚',c:'rEmerald',mmr:4000},
+  {n:'Diamond III',e:'💜',c:'rDiamond',mmr:4200},{n:'Diamond II',e:'💜',c:'rDiamond',mmr:4400},{n:'Diamond I',e:'💜',c:'rDiamond',mmr:4600},
+  {n:'Champion',e:'🏆',c:'rChampion',mmr:5000}
+];
+const rankIdx2name=(i)=>['Unranked','Copper III','Copper II','Copper I','Bronze III','Bronze II','Bronze I','Silver III','Silver II','Silver I','Gold III','Gold II','Gold I','Platinum III','Platinum II','Platinum I','Emerald III','Emerald II','Emerald I','Diamond III','Diamond II','Diamond I','Champion'][i]||'Unranked';
+const getRank=(n)=>RANKS.find(r=>r.n===n)||RANKS[0];
+const PLT_ICO={uplay:'🖥️',psn:'🎮',xbl:'🟩'};
+const PLT_NM={uplay:'PC',psn:'PlayStation',xbl:'Xbox'};
+const COLORS=['#7c3aed','#0ea5e9','#16a34a','#f59e0b','#e11d48','#f97316','#ec4899','#14b8a6','#6366f1','#84cc16'];
+const ini=n=>n.slice(0,2).toUpperCase();
+const PROXY='https://api.allorigins.win/raw?url=';
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let me=JSON.parse(localStorage.getItem('r6h_me')||'null')||{id:0,name:'You',platform:'uplay',username:'',rank:'Unranked',mmr:0,kd:0,win:0,level:0,matches:0,game:'',status:'online',color:'#3b82f6',linked:false};
+let squad=JSON.parse(localStorage.getItem('r6h_squad')||'null')||[
+  {id:1,name:'ShadowFox',platform:'xbl',username:'ShadowFox',rank:'Diamond I',mmr:4650,kd:1.45,win:58,level:312,matches:1823,game:'Rainbow Six Siege',status:'ingame',color:'#7c3aed',linked:false},
+  {id:2,name:'IcyViper',platform:'psn',username:'IcyViper',rank:'Platinum II',mmr:3200,kd:1.12,win:52,level:187,matches:1044,game:'Rainbow Six Siege',status:'ingame',color:'#0ea5e9',linked:false},
+  {id:3,name:'NightOwl',platform:'uplay',username:'NightOwl',rank:'Emerald III',mmr:3600,kd:1.28,win:55,level:240,matches:1380,game:'',status:'online',color:'#16a34a',linked:false},
+  {id:4,name:'QuantumX',platform:'psn',username:'QuantumX',rank:'Gold II',mmr:2600,kd:0.98,win:49,level:98,matches:632,game:'Apex Legends',status:'ingame',color:'#f59e0b',linked:false},
+  {id:5,name:'SwiftBlade',platform:'uplay',username:'SwiftBlade',rank:'Silver I',mmr:2200,kd:0.85,win:44,level:55,matches:340,game:'',status:'offline',color:'#64748b',linked:false},
+  {id:6,name:'GhostRecon',platform:'xbl',username:'GhostRecon',rank:'Champion',mmr:5200,kd:1.92,win:64,level:520,matches:3100,game:'Rainbow Six Siege',status:'ingame',color:'#f97316',linked:false},
+];
+let chatMsgs=JSON.parse(localStorage.getItem('r6h_chat')||'[]');
+if(!chatMsgs.length)chatMsgs=[
+  {sender:'ShadowFox',color:'#7c3aed',text:'ggs last match, clutched that 1v3 🔥',time:'5m ago',isMe:false},
+  {sender:'GhostRecon',color:'#f97316',text:'lets run ranked tonight, need 2 more',time:'3m ago',isMe:false},
+  {sender:'IcyViper',color:'#0ea5e9',text:'im down, what time?',time:'2m ago',isMe:false},
+  {sender:'GhostRecon',color:'#f97316',text:'9pm EST 👊',time:'1m ago',isMe:false},
+];
+let selPlatform='uplay', selAddPlatform='uplay';
+let pendingMe=null, pendingFriend=null;
+function save(){localStorage.setItem('r6h_me',JSON.stringify(me));localStorage.setItem('r6h_squad',JSON.stringify(squad));localStorage.setItem('r6h_chat',JSON.stringify(chatMsgs));}
+
+// ── R6TAB API ──────────────────────────────────────────────────────────────────
+async function apiSearch(platform,username){
+  try{
+    const url=`https://r6tab.com/api/search.php?platform=${platform}&search=${encodeURIComponent(username)}`;
+    const r=await fetch(PROXY+encodeURIComponent(url),{signal:AbortSignal.timeout(10000)});
+    const d=await r.json();
+    if(!d.results||!d.results.length)return null;
+    return d.results.find(p=>p.p_name.toLowerCase()===username.toLowerCase())||d.results[0];
+  }catch(e){return null;}
+}
+async function apiPlayer(pid){
+  try{
+    const url=`https://r6tab.com/api/player.php?p_id=${pid}`;
+    const r=await fetch(PROXY+encodeURIComponent(url),{signal:AbortSignal.timeout(10000)});
+    return await r.json();
+  }catch(e){return null;}
+}
+function parseStats(d){
+  if(!d)return null;
+  const ranked=d.ranked||{};const stats=d.stats||{};
+  const kills=stats.kills||0;const deaths=Math.max(stats.deaths||1,1);
+  const wins=stats.wins||0;const losses=stats.losses||0;const tot=wins+losses;
+  return{rank:rankIdx2name(ranked.rank||0),mmr:ranked.mmr||0,kd:Math.round((kills/deaths)*100)/100,win:tot>0?Math.round((wins/tot)*100):0,level:d.p_level||0,matches:tot,pname:d.p_name||''};
+}
+
+// ── LOOKUP FLOWS ───────────────────────────────────────────────────────────────
+async function lookupMe(){
+  const uname=document.getElementById('m-uname').value.trim();
+  if(!uname){setStatus('m-lnk-status','err','⚠️ Enter your username first');return;}
+  setStatus('m-lnk-status','ldr','<span class="spinner"></span> Searching R6Tab database...');
+  document.getElementById('m-stats-sec').style.display='none';
+  const found=await apiSearch(selPlatform,uname);
+  if(!found){setStatus('m-lnk-status','err','❌ Player not found. Check username & platform exactly.');return;}
+  setStatus('m-lnk-status','ldr',`<span class="spinner"></span> Found <b>${found.p_name}</b> — loading stats...`);
+  const detail=await apiPlayer(found.p_id);
+  const s=parseStats(detail);
+  if(!s){setStatus('m-lnk-status','err','❌ Stats unavailable right now. Try again in a moment.');return;}
+  pendingMe={...s,pid:found.p_id};
+  document.getElementById('m-rank').value=s.rank;
+  document.getElementById('m-mmr').value=s.mmr;
+  document.getElementById('m-kd').value=s.kd;
+  document.getElementById('m-win').value=s.win+'%';
+  document.getElementById('m-level').value=s.level;
+  document.getElementById('m-matches').value=s.matches;
+  document.getElementById('m-note').innerHTML=`<b>✅ Live data fetched for ${found.p_name}</b> on ${PLT_NM[selPlatform]}. Pulled from R6Tab tracker.`;
+  document.getElementById('m-stats-sec').style.display='block';
+  if(!document.getElementById('m-name').value)document.getElementById('m-name').value=found.p_name;
+  setStatus('m-lnk-status','suc',`✅ ${PLT_ICO[selPlatform]} ${found.p_name} — ${s.rank} · ${s.mmr} MMR`);
+}
+
+async function lookupFriend(){
+  const uname=document.getElementById('a-uname').value.trim();
+  if(!uname){setStatus('a-lnk-status','err','⚠️ Enter their username first');return;}
+  setStatus('a-lnk-status','ldr','<span class="spinner"></span> Searching R6Tab database...');
+  document.getElementById('a-stats-sec').style.display='none';
+  const found=await apiSearch(selAddPlatform,uname);
+  if(!found){setStatus('a-lnk-status','err','❌ Player not found. Check username & platform.');return;}
+  setStatus('a-lnk-status','ldr',`<span class="spinner"></span> Found <b>${found.p_name}</b> — loading stats...`);
+  const detail=await apiPlayer(found.p_id);
+  const s=parseStats(detail);
+  if(!s){setStatus('a-lnk-status','err','❌ Stats unavailable. Try again.');return;}
+  pendingFriend={...s,pid:found.p_id,pname:found.p_name};
+  document.getElementById('a-note').innerHTML=`<b>✅ ${found.p_name}</b> on ${PLT_NM[selAddPlatform]}<br>Rank: <b>${s.rank}</b> · MMR: <b>${s.mmr}</b> · K/D: <b>${s.kd}</b> · Win: <b>${s.win}%</b> · Level: <b>${s.level}</b> · Matches: <b>${s.matches}</b>`;
+  document.getElementById('a-stats-sec').style.display='block';
+  if(!document.getElementById('a-name').value)document.getElementById('a-name').value=found.p_name;
+  setStatus('a-lnk-status','suc',`✅ ${PLT_ICO[selAddPlatform]} ${found.p_name} — ${s.rank}`);
+}
+
+function setStatus(id,type,msg){document.getElementById(id).innerHTML=`<div class="lnk-status ${type}">${msg}</div>`;}
+
+// ── PLATFORM BUTTONS ───────────────────────────────────────────────────────────
+const PLT_MAP={uplay:'pc',psn:'psn',xbl:'xbl'};
+function selPlt(p,prefix){
+  if(prefix==='pb'){
+    selPlatform=p;
+    ['pc','psn','xbl'].forEach(k=>document.getElementById('pb-'+k).classList.remove('sel'));
+    document.getElementById('pb-'+PLT_MAP[p]).classList.add('sel');
+  }else{
+    selAddPlatform=p;
+    ['pc','psn','xbl'].forEach(k=>document.getElementById('apb-'+k).classList.remove('sel'));
+    document.getElementById('apb-'+PLT_MAP[p]).classList.add('sel');
+  }
+}
+
+// ── SAVE ───────────────────────────────────────────────────────────────────────
+function saveMe(){
+  const n=document.getElementById('m-name').value.trim()||(pendingMe&&pendingMe.pname)||me.name;
+  me.name=n;me.platform=selPlatform;me.username=document.getElementById('m-uname').value.trim()||me.username;
+  me.game=document.getElementById('m-game').value;me.status=me.game?'ingame':'online';
+  if(pendingMe){Object.assign(me,{rank:pendingMe.rank,mmr:pendingMe.mmr,kd:pendingMe.kd,win:pendingMe.win,level:pendingMe.level,matches:pendingMe.matches,linked:true});pendingMe=null;}
+  save();render();closeModals();toast('Profile saved! '+(me.linked?'✅ Account linked & live':''));
+}
+function saveAddFriend(){
+  const uname=document.getElementById('a-uname').value.trim();
+  if(!uname){toast('Enter a username to search first');return;}
+  const displayName=document.getElementById('a-name').value.trim()||(pendingFriend&&pendingFriend.pname)||uname;
+  const color=COLORS[squad.length%COLORS.length];
+  const f={id:Date.now(),name:displayName,platform:selAddPlatform,username:uname,game:document.getElementById('a-game').value,status:document.getElementById('a-game').value?'ingame':'online',color,linked:!!pendingFriend,rank:'Unranked',mmr:0,kd:0,win:0,level:0,matches:0};
+  if(pendingFriend){Object.assign(f,{rank:pendingFriend.rank,mmr:pendingFriend.mmr,kd:pendingFriend.kd,win:pendingFriend.win,level:pendingFriend.level,matches:pendingFriend.matches});pendingFriend=null;}
+  squad.push(f);save();render();closeModals();toast('Added '+displayName+' to your squad! '+(f.linked?'✅ Stats linked':''));
+}
+
+// ── REFRESH ALL ────────────────────────────────────────────────────────────────
+async function refreshAll(){
+  const linked=[me,...squad].filter(p=>p.linked&&p.username&&p.platform);
+  if(!linked.length){toast('⚠️ No linked accounts yet! Use "Look Up" when adding players.');return;}
+  toast('🔄 Refreshing '+linked.length+' linked account(s)...');
+  for(const p of linked){
+    const found=await apiSearch(p.platform,p.username);
+    if(!found)continue;
+    const detail=await apiPlayer(found.p_id);
+    const s=parseStats(detail);
+    if(!s)continue;
+    Object.assign(p,{rank:s.rank,mmr:s.mmr,kd:s.kd,win:s.win,level:s.level,matches:s.matches});
+  }
+  save();render();toast('✅ All stats refreshed!');
+}
+
+// ── MODALS ─────────────────────────────────────────────────────────────────────
+function openMyProfile(){
+  document.getElementById('m-name').value=me.name==='You'?'':me.name;
+  document.getElementById('m-uname').value=me.username||'';
+  document.getElementById('m-game').value=me.game||'';
+  document.getElementById('m-lnk-status').innerHTML='';
+  document.getElementById('m-stats-sec').style.display=me.linked?'block':'none';
+  if(me.linked){document.getElementById('m-rank').value=me.rank;document.getElementById('m-mmr').value=me.mmr;document.getElementById('m-kd').value=me.kd;document.getElementById('m-win').value=me.win+'%';document.getElementById('m-level').value=me.level;document.getElementById('m-matches').value=me.matches;document.getElementById('m-note').innerHTML=`<b>✅ Linked:</b> ${PLT_ICO[me.platform]} ${me.username} on ${PLT_NM[me.platform]} — click Look Up to refresh`;}
+  selPlt(me.platform||'uplay','pb');
+  document.getElementById('modal-me').classList.add('open');
+}
+function openAddFriend(){
+  document.getElementById('a-uname').value='';document.getElementById('a-name').value='';document.getElementById('a-game').value='';
+  document.getElementById('a-lnk-status').innerHTML='';document.getElementById('a-stats-sec').style.display='none';
+  pendingFriend=null;selPlt('uplay','apb');
+  document.getElementById('modal-add').classList.add('open');
+}
+function closeModals(){document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModals();}));
+
+// ── CHAT ───────────────────────────────────────────────────────────────────────
+function sendMsg(){const el=document.getElementById('chat-in');const txt=el.value.trim();if(!txt)return;chatMsgs.push({sender:me.name,color:me.color,text:txt,time:'just now',isMe:true});save();renderChat();el.value='';}
+
+// ── TABS ───────────────────────────────────────────────────────────────────────
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['dashboard','ranks','chat'][i]===name));
+  document.querySelectorAll('.tc').forEach(c=>c.classList.remove('active'));
+  document.getElementById(name+'-tab').classList.add('active');
+  if(name==='chat')setTimeout(()=>{const c=document.getElementById('chat-msgs');c.scrollTop=c.scrollHeight;},50);
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────────
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────────
+function rankBadge(rank){const r=getRank(rank);return `<span class="rb ${r.c}">${r.e} ${rank}</span>`;}
+
+function render(){
+  // header
+  document.getElementById('hdr-nm').textContent=me.name;
+  document.getElementById('hdr-av').textContent=ini(me.name);
+  document.getElementById('hdr-plt').textContent=PLT_ICO[me.platform]||'';
+  document.getElementById('hdr-linked').style.display=me.linked?'inline':'none';
+  // sidebar
+  const online=squad.filter(f=>f.status!=='offline');
+  const offline=squad.filter(f=>f.status==='offline');
+  document.getElementById('oc').textContent=online.length+(me.status!=='offline'?1:0);
+  const frow=f=>`<div class="frow"><div class="fav-wrap"><div class="fav" style="background:${f.color}22;color:${f.color}">${ini(f.name)}</div><div class="sdot dot-${f.game?'ingame':f.status}"></div></div><div class="fi"><div class="fn">${f.name}${f.linked?' <span style="font-size:8px;color:var(--green)">●</span>':''}</div><div class="fs ${f.game?'ig':''}">${f.game||f.status==='online'?f.game||'Online':'Away'}</div></div><span style="font-size:12px">${PLT_ICO[f.platform]||''}</span></div>`;
+  document.getElementById('sb-online').innerHTML=(me.status!=='offline'?frow({...me,id:0}):'')+online.map(frow).join('');
+  document.getElementById('sb-offline').innerHTML=offline.map(frow).join('');
+  // stats
+  const all=[me,...squad];
+  document.getElementById('st-total').textContent=all.length;
+  document.getElementById('st-online').textContent=all.filter(p=>p.status!=='offline').length;
+  document.getElementById('st-r6').textContent=all.filter(p=>p.game==='Rainbow Six Siege').length;
+  const mmrs=all.filter(p=>p.mmr>0).map(p=>p.mmr);
+  document.getElementById('st-mmr').textContent=mmrs.length?Math.round(mmrs.reduce((a,b)=>a+b,0)/mmrs.length):'—';
+  // grid
+  document.getElementById('pgrid').innerHTML=all.map(p=>{
+    const ri=getRank(p.rank);const isMe=p.id===0;
+    const sl=p.game?'🎮 '+p.game:p.status==='online'?'Online':p.status==='offline'?'Offline':'Away';
+    return `<div class="pcard"${isMe?' onclick="openMyProfile()"':''}>
+      ${p.linked?'<span class="live-badge">LIVE</span>':''}
+      <span class="plt-tag">${PLT_ICO[p.platform]||''}</span>
+      <div class="pcard-top">
+        <div class="pav-wrap">
+          <div class="pav" style="background:${p.color}22;color:${p.color}">${ini(p.name)}</div>
+          <div class="sdot dot-${p.game?'ingame':p.status}" style="border-color:var(--card)"></div>
+        </div>
+        <div><div class="pname">${p.name}${isMe?' <span style="font-size:9px;color:var(--accent)">(you)</span>':''}</div><div class="pgame ${p.game?'ig':''}">${sl}</div></div>
+      </div>
+      <div class="rank-box"><div class="rank-ico">${ri.e}</div><div><div class="rank-nm ${ri.c}">${p.rank||'Unranked'}</div><div class="rank-mmr">${p.mmr?p.mmr+' MMR':p.linked?'—':'demo data'}</div></div></div>
+      ${p.mmr?`<div class="mmr-bar"><div class="mmr-fill" style="width:${Math.min(100,(p.mmr/5500)*100)}%"></div></div>`:''}
+      ${p.level?`<div class="lv-info">Lv.${p.level} · ${p.matches} matches${p.kd?' · '+p.kd+' K/D':''}</div>`:''}
+    </div>`;
+  }).join('');
+  // leaderboard
+  const sorted=[...all].sort((a,b)=>(b.mmr||0)-(a.mmr||0));
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('lb-body').innerHTML=sorted.map((p,i)=>{
+    const pos=i<3?medals[i]:`#${i+1}`;const ri=getRank(p.rank);
+    const sc=p.game?'var(--blue)':p.status==='online'?'var(--green)':'var(--muted)';
+    const st=p.game?'🎮 '+p.game:p.status==='online'?'✅ Online':'⚫ Offline';
+    return `<tr><td style="font-family:Rajdhani;font-weight:700;font-size:15px">${pos}</td>
+      <td><div style="display:flex;align-items:center;gap:7px"><div style="width:24px;height:24px;border-radius:50%;background:${p.color}22;color:${p.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px">${ini(p.name)}</div><span style="font-weight:500">${p.name}${p.id===0?' <span style="color:var(--accent);font-size:9px">(you)</span>':''}</span>${p.linked?'<span style="font-size:8px;background:#16a34a22;color:var(--green);border:1px solid #16a34a55;padding:1px 3px;border-radius:3px">LIVE</span>':''}</div></td>
+      <td>${PLT_ICO[p.platform]||''} <span style="font-size:10px;color:var(--muted)">${PLT_NM[p.platform]||''}</span></td>
+      <td>${rankBadge(p.rank)}</td>
+      <td style="font-family:Rajdhani;font-weight:700">${p.mmr||'—'}</td>
+      <td style="color:${(p.kd||0)>=1?'var(--green)':'var(--red)'}">${p.kd?p.kd.toFixed(2):'—'}</td>
+      <td>${p.win?p.win+'%':'—'}</td>
+      <td style="color:var(--muted)">${p.level||'—'}</td></tr>`;
+  }).join('');
+  // chat
+  renderChat();
+  // rank ref
+  const show=['Copper I','Bronze I','Silver I','Gold I','Platinum I','Emerald I','Diamond I','Champion'];
+  document.getElementById('rank-ref').innerHTML=RANKS.filter(r=>show.includes(r.n)).map(r=>`<div class="rref-row"><span style="font-size:14px">${r.e}</span><span style="font-size:12px;font-weight:500;flex:1">${r.n.replace(' I','')}</span><span style="font-size:10px;color:var(--muted)">${r.mmr}+ MMR</span></div>`).join('');
+}
+function renderChat(){const el=document.getElementById('chat-msgs');el.innerHTML=chatMsgs.map(m=>`<div class="cmsg ${m.isMe?'me':''}"><div class="mav" style="background:${m.color}22;color:${m.color}">${ini(m.sender)}</div><div class="mbody"><div class="mmeta"><b>${m.sender}</b><span>${m.time}</span></div><div class="mbubble">${m.text}</div></div></div>`).join('');el.scrollTop=el.scrollHeight;}
+
+render();
+</script>
+</body>
+</html>
