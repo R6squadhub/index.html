@@ -111,11 +111,21 @@ button:active{transform:scale(0.96)}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
+
+  apiKey: "AIzaSyBtJwjFWMari1opfdxCVd-c46qVos09yUc",
+
+  authDomain: "r6-squad-hub.firebaseapp.com",
+
+  projectId: "r6-squad-hub",
+
+  storageBucket: "r6-squad-hub.firebasestorage.app",
+
+  messagingSenderId: "155939625388",
+
+  appId: "1:155939625388:web:868a5d40ed465c108c8209",
+
+
 };
 
 const app = initializeApp(firebaseConfig);
